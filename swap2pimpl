@@ -1,0 +1,102 @@
+#include<iostream>
+using namespace std;
+//针对pimpl手法的swap函数实现方法
+
+//创建widget命名空间
+namespace widget
+{
+    
+    class WidgetImpl
+    {
+    public:
+        WidgetImpl(int aa, int bb, int cc)
+            :a(aa), b(bb), c(cc){};
+        WidgetImpl(const WidgetImpl& rhs)
+            :a(rhs.a), b(rhs.b), c(rhs.c){};
+        void printWidgetIpml()
+        {
+            cout << a << b << c << endl;
+
+        }
+    private:
+        int a, b, c;
+    };
+
+    class Widget
+    {
+    public:
+        //有参构造
+        Widget(int a, int b, int c)
+            :pImpl(new WidgetImpl(a, b, c)) {};
+        ~Widget()
+        {
+            if (pImpl != NULL)
+            {
+                delete pImpl;
+                pImpl = NULL;
+            }
+        }
+        //拷贝构造
+        Widget(const Widget& rhs)
+            :pImpl(new WidgetImpl(*rhs.pImpl)) {};
+        //拷贝复制操作符
+        Widget& operator=(const Widget& rhs)
+        {
+            //拷贝赋值操作符方法1
+            /*WidgetImpl* temp = pImpl;
+            pImpl = new WidgetImpl(*rhs.pImpl);
+            delete temp;
+            return *this;*/
+            //拷贝赋值操作符方法2(常用)
+            Widget temp(rhs);
+            swap(temp);
+            return *this;
+        }
+        //成员版swap
+        void swap(Widget& rhs)
+        {
+            using std::swap;//using 声明式让std::swap提前曝光
+            swap(pImpl, rhs.pImpl);
+        };
+        void printWidget()
+        {
+            pImpl->printWidgetIpml();
+
+        }
+    private:
+        WidgetImpl* pImpl;
+    };
+    //非成员版swap函数,Widget专属swap
+    void swap(Widget& a, Widget& b)
+    {
+        a.swap(b);
+    }
+}
+
+//在std命名空间特化swap
+namespace std 
+{
+    //特化swap
+    template<>
+    void swap(widget::Widget& a, widget::Widget& b)
+    {
+        a.swap(b);
+    }
+}
+int main()
+{
+    widget::Widget w1(1, 2, 3);
+    widget::Widget w2(4, 5, 6);
+    //提前曝光swap()
+    using std::swap;
+    swap(w1, w2);
+    w1.printWidget();//456
+    w2.printWidget();//123
+
+    //使用swap函数的赋值操作符验证
+    widget::Widget w3(7, 8, 9);
+    w3 = w2;
+    w3.printWidget();//123
+    system("pause");
+    return 0;
+}
