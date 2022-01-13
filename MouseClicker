@@ -1,0 +1,23 @@
+#include<iostream>
+using namespace std;
+#include<Windows.h>
+//连点器
+int main()
+{
+    while (true)
+    {
+        if (GetAsyncKeyState(VK_ESCAPE)) break;
+        if (GetAsyncKeyState('Q'))
+        {
+            while (true)
+            {
+                mouse_event(MOUSEEVENTF_LEFTDOWN | MOUSEEVENTF_LEFTUP, 0, 0, 0, 0);
+                Sleep(1);
+                if (GetAsyncKeyState('W')) break;
+            }
+        }
+        
+    }
+    //system("pause");
+    return 0;
+}
